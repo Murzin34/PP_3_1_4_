@@ -5,45 +5,49 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final UserDetailsService userDetailsService;
     private final SuccessUserHandler successUserHandler;
 
-    public WebSecurityConfig(SuccessUserHandler successUserHandler) {
+    public WebSecurityConfig(UserDetailsService userDetailsService, SuccessUserHandler successUserHandler) {
+        this.userDetailsService = userDetailsService;
         this.successUserHandler = successUserHandler;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
+        http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/", "/index").permitAll()
+                //Доступ разрешен всем пользователей
+                .antMatchers("/login").permitAll()
+                .antMatchers("/userPage").hasAnyAuthority("USER", "ADMIN")
+                .antMatchers("/index").hasAuthority("ADMIN")
+                //Все остальные страницы требуют аутентификации
                 .anyRequest().authenticated()
                 .and()
-                .formLogin().successHandler(successUserHandler)
+                //Настройка для входа в систему
+                .formLogin()
+                .loginPage("/login")
+                .successHandler(successUserHandler)
+                .loginProcessingUrl("/login")
+                .usernameParameter("j_username")
+                .passwordParameter("j_password")
                 .permitAll()
                 .and()
                 .logout()
-                .permitAll();
+                .permitAll()
+                .logoutSuccessUrl("/login");
     }
-
-    // аутентификация inMemory
     @Bean
-    @Override
-    public UserDetailsService userDetailsService() {
-        UserDetails user =
-                User.withDefaultPasswordEncoder()
-                        .username("user")
-                        .password("user")
-                        .roles("USER")
-                        .build();
-
-        return new InMemoryUserDetailsManager(user);
+    protected PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
+
 }
