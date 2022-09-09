@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.models;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +17,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@EqualsAndHashCode
 @Table(name = "users")
 public class User implements UserDetails {
 
@@ -41,7 +43,6 @@ public class User implements UserDetails {
         this.password = password;
         this.roles = roles;
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

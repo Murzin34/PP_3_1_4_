@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.models;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
+@EqualsAndHashCode
 @Table(name = "roles")
 public class Role implements GrantedAuthority {
 
@@ -32,4 +34,5 @@ public class Role implements GrantedAuthority {
     public String getAuthority() {
         return name;
     }
+
 }
