@@ -13,7 +13,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserDao userDao;
 
-    @Autowired
     public UserDetailsServiceImpl(UserDao userDao) {
         this.userDao = userDao;
     }
@@ -22,5 +21,4 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userDao.findByUsername(email);
     }
-
 }
